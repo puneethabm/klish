@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CLISH_MODULE xmlns="http://clish.sourceforge.net/XMLSchema" 
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+ xsi:schemaLocation="http://clish.sourceforge.net/XMLSchema
+                     http://clish.sourceforge.net/XMLSchema/clish.xsd">
+	<!--=======================================================-->
+
+
+	<COMMAND name="get"
+		help="Get information from floodlight controller"
+		lock="false"
+		interrupt="true">
+
+		
+		<PARAM name="info"
+				help="Information to retrieve"
+				optional="false"
+				mode="switch"				
+				ptype="SUBCOMMAND">
+
+			<PARAM name="flows"
+				help="Get Flow Information"
+				mode="subcommand"
+				ptype="SUBCOMMAND"/>
+
+			<PARAM name="protocol"
+				help="Get Protocol Information"
+				mode="subcommand"
+				ptype="SUBCOMMAND">
+				<PARAM name="protoName"
+					help="Protocol Name"
+					optional="false"
+					ptype="PROTOSTRING"/>
+			</PARAM>
+	
+			<PARAM name="switch"
+				help="Get Switch Information"
+				mode="subcommand"
+				ptype="SUBCOMMAND">
+				<PARAM name="switchinfo"
+					help="Switch Information to retrieve"
+					optional="false"
+					mode="switch"				
+					ptype="SUBCOMMAND">
+					<PARAM name="switchID"
+						help="Switch ID"
+						optional="false"
+						ptype="UINT"/>
+					<PARAM name="all"
+						help="All Flows"
+						optional="false"
+						ptype="ALLSTRING"/>
+				</PARAM>				
+			</PARAM>
+
+
+			<PARAM name="mac"
+				help="Get MAC Information"
+				mode="subcommand"
+				ptype="SUBCOMMAND">
+				<PARAM name="macinfo"
+					help="MAC Information to retrieve"
+					optional="false"
+					mode="switch"				
+					ptype="SUBCOMMAND">
+					<PARAM name="macStr"
+						help="MAC-address"
+						optional="false"
+						ptype="MAC_ADDR"/>
+					<PARAM name="all"
+						help="All Flows"
+						optional="false"
+						ptype="ALLSTRING"/>
+				</PARAM>				
+			</PARAM>
+
+			<PARAM name="ip"
+				help="Get IP Information"
+				mode="subcommand"
+				ptype="SUBCOMMAND">
+				<PARAM name="ipinfo"
+					help="IP Information to retrieve"
+					optional="false"
+					mode="switch"				
+					ptype="SUBCOMMAND">
+					<PARAM name="ipStr"
+						help="IP-address"
+						optional="false"
+						ptype="IP_ADDR"/>
+					<PARAM name="all"
+						help="All Flows"
+						optional="false"
+						ptype="ALLSTRING"/>
+				</PARAM>
+				
+			</PARAM>	
+		</PARAM>
+
+
+
+		<ACTION>
+			#Get IP Address of the Machine
+			var1=`netstat -n | grep ':6633'| awk '{ print $5 }' | cut -d: -f1 | sort -u`
+			#echo $var1
+			
+			case "${info}" in
+				"flows")					
+					java -jar commands/jarFiles/floodlightJSONParser.jar $var1 flows all
+					;;
+
+				"protocol")					
+					java -jar commands/jarFiles/floodlightJSONParser.jar $var1 protocol ${protoName}
+					;;
+
+
+				"mac")
+					case "${macinfo}" in
+						"macStr")
+							#echo "MAC Input=> "${macStr}
+							java -jar commands/jarFiles/floodlightJSONParser.jar $var1 mac ${macStr}
+							;;
+						"all")
+							java -jar commands/jarFiles/floodlightJSONParser.jar $var1 mac ${all}
+							;;
+				                *)
+							echo "Default Information"
+							;;
+					esac	
+					;;
+
+				"switch")
+					case "${switchinfo}" in
+						"switchID")
+							
+							java -jar commands/jarFiles/floodlightJSONParser.jar $var1 switch1 ${switchID}
+							;;
+						"all")
+							java -jar commands/jarFiles/floodlightJSONParser.jar $var1 switch1 ${all}
+							;;
+				                *)
+							echo "Default Information"
+							;;
+					esac	
+					;;
+
+
+		
+				"ip")
+					case "${ipinfo}" in
+						"ipStr")
+							java -jar commands/jarFiles/floodlightJSONParser.jar $var1 ip ${ipStr}
+							;;
+						"all")
+							java -jar commands/jarFiles/floodlightJSONParser.jar $var1 ip ${all}
+							;;
+				                *)
+							echo "Wrong entry"
+							;;
+					esac								
+					;;
+
+
+				*)
+					echo "Default Information"
+					;;
+			esac
+		</ACTION>
+	</COMMAND>
+
+		
+
+
+
+</CLISH_MODULE>
